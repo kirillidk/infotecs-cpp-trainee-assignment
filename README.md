@@ -1,0 +1,1 @@
+# infotecs-cpp-trainee-assignment
