@@ -5,7 +5,9 @@
 #include <mutex>
 #include <string>
 #include <string_view>
+#include <vector>
 
+#include <sink.hpp>
 #include <utility.hpp>
 
 namespace logger {
@@ -14,16 +16,20 @@ namespace logger {
         static std::shared_ptr<Logger> create_logger(const std::string &filename,
                                                      LogLevel default_level = LogLevel::INFO);
 
-        ~Logger();
+        ~Logger() = default;
 
-        bool log(std::string_view message);
-        bool log(std::string_view message, LogLevel level);
+        void add_sink(std::unique_ptr<ILogSink> sink);
+        void clear_sinks();
+        size_t sink_count() const;
 
-        bool debug(std::string_view message);
-        bool info(std::string_view message);
-        bool warning(std::string_view message);
-        bool error(std::string_view message);
-        bool fatal(std::string_view message);
+        void log(std::string_view message);
+        void log(std::string_view message, LogLevel level);
+
+        void debug(std::string_view message);
+        void info(std::string_view message);
+        void warning(std::string_view message);
+        void error(std::string_view message);
+        void fatal(std::string_view message);
 
         void set_default_level(LogLevel level);
         [[nodiscard]] LogLevel get_default_level() const;
@@ -31,11 +37,11 @@ namespace logger {
         [[nodiscard]] bool is_valid() const;
 
     private:
-        Logger(const std::string &filename, LogLevel default_level = LogLevel::INFO);
+        Logger(LogLevel default_level = LogLevel::INFO);
 
     private:
-        std::ofstream _file_stream;
-        LogLevel _default_level;
-        mutable std::mutex _fs_mutex;
+        std::vector<std::unique_ptr<ILogSink>> sinks_;
+        LogLevel default_level_;
+        mutable std::mutex sinks_mutex_;
     };
 } // namespace logger
