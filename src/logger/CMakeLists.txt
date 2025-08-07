@@ -14,6 +14,7 @@ else()
 endif()
 
 target_include_directories(${LOGGER_LIB} PUBLIC 
-        "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>"
+        "$<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/src>"
 )
+
 target_compile_options(${LOGGER_LIB} PUBLIC "-Werror" "-Wall" "-Wextra" "-Wpedantic" "-Wno-error=maybe-uninitialized")

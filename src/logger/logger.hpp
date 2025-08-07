@@ -7,8 +7,8 @@
 #include <string_view>
 #include <vector>
 
-#include <sink.hpp>
-#include <utility.hpp>
+#include "sink.hpp"
+#include "utility.hpp"
 
 namespace logger {
     class Logger {
