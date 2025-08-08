@@ -30,5 +30,12 @@ namespace test_application {
         }
 
         void print_available_levels() { std::cout << "Available levels: debug, info, warning, error, fatal\n"; }
+
+        void print_welcome_message() {
+            std::cout << "\n=== Logger Console Application ===\n";
+            std::cout << "Type 'help' for available commands\n";
+            std::cout << "Type 'exit' or 'quit' to exit\n";
+            std::cout << "===================================\n\n";
+        }
     } // namespace utility
 } // namespace test_application

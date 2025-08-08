@@ -22,17 +22,19 @@ namespace test_application {
             condition_.notify_one();
         }
 
-        void pop(T &item) {
+        bool pop(T &item) {
             std::unique_lock<std::mutex> lock(mutex_);
 
             condition_.wait(lock, [this] { return not queue_.empty() || not is_running_; });
 
             if (not is_running_ && queue_.empty()) {
-                return;
+                return false;
             }
 
             item = std::move(queue_.front());
             queue_.pop();
+
+            return true;
         }
 
         void stop() {
