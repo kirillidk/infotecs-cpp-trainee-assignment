@@ -1,6 +1,7 @@
 #include "logger.hpp"
 
 #include "file_sink.hpp"
+#include "socket_sink.hpp"
 
 namespace logger {
     std::shared_ptr<Logger> Logger::create_logger(const std::string &filename, LogLevel default_level) {
@@ -12,6 +13,18 @@ namespace logger {
         }
 
         logger->add_sink(std::move(file_sink));
+        return logger;
+    }
+
+    std::shared_ptr<Logger> Logger::create_logger(const std::string &host, int port, LogLevel default_level) {
+        auto logger = std::shared_ptr<Logger>(new Logger(default_level));
+
+        auto socket_sink = std::make_unique<SocketSink>(host, port);
+        if (not socket_sink->is_valid()) {
+            return nullptr;
+        }
+
+        logger->add_sink(std::move(socket_sink));
         return logger;
     }
 
