@@ -5,14 +5,22 @@
 namespace test_application {
     namespace utility {
         void print_usage(const char *program_name) {
-            std::cout << "Usage: " << program_name << " <log_filename> [default_log_level]\n\n";
-            std::cout << "Parameters:\n";
-            std::cout << "  log_filename      - Log filename\n";
-            std::cout << "  default_log_level - Optional default log level (debug, info, warning, error, fatal) (info "
-                         "by default)\n";
+            std::cout << "Usage:\n";
+            std::cout << "  " << program_name << " --file <filename> [--level <level>]\n";
+            std::cout << "  " << program_name << " --socket <host> <port> [--level <level>]\n";
+            std::cout << "  " << program_name << " --help\n\n";
+
+            std::cout << "Options:\n";
+            std::cout << "  --file <filename>      Log to file\n";
+            std::cout << "  --socket <host> <port> Log to socket server\n";
+            std::cout << "  --level <level>        Set default log level (debug, info, warning, error, fatal) "
+                         "(Default: info)\n";
+            std::cout << "  --help, -h             Show this help\n\n";
+
             std::cout << "Examples:\n";
-            std::cout << "  " << program_name << " app.log\n";
-            std::cout << "  " << program_name << " app.log debug\n";
+            std::cout << "  " << program_name << " --file app.log\n";
+            std::cout << "  " << program_name << " --file app.log --level debug\n";
+            std::cout << "  " << program_name << " --socket 127.0.0.1 9000 --level error\n";
         }
 
         void print_help() {

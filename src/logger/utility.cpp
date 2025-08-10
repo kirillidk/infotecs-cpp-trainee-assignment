@@ -1,5 +1,6 @@
 #include "utility.hpp"
 
+#include <algorithm>
 #include <chrono>
 #include <iomanip>
 #include <sstream>
@@ -31,6 +32,23 @@ namespace logger {
                 default:
                     return "UNKNOWN";
             }
+        }
+
+        std::optional<logger::LogLevel> string_to_level(std::string level_str) {
+            std::transform(level_str.begin(), level_str.end(), level_str.begin(), ::tolower);
+
+            if (level_str == "debug")
+                return logger::LogLevel::DEBUG;
+            if (level_str == "info")
+                return logger::LogLevel::INFO;
+            if (level_str == "warning")
+                return logger::LogLevel::WARNING;
+            if (level_str == "error")
+                return logger::LogLevel::ERROR;
+            if (level_str == "fatal")
+                return logger::LogLevel::FATAL;
+
+            return std::nullopt;
         }
 
         std::string get_timestamp() {

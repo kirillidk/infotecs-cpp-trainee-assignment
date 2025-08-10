@@ -3,6 +3,7 @@
 #include <iostream>
 
 #include <logger/logger.hpp>
+#include <logger/socket_sink.hpp>
 #include <logger/utility.hpp>
 
 #include "command_parser.hpp"
@@ -12,6 +13,17 @@ namespace test_application {
     std::unique_ptr<TestApplication> TestApplication::create_application(const std::string &log_filename,
                                                                          logger::LogLevel default_level) {
         auto logger = logger::Logger::create_logger(log_filename, default_level);
+        if (not logger) {
+            return nullptr;
+        }
+
+        auto test_application = std::unique_ptr<TestApplication>(new TestApplication(std::move(logger), default_level));
+        return test_application;
+    }
+
+    std::unique_ptr<TestApplication> TestApplication::create_application(const std::string &host, int port,
+                                                                         logger::LogLevel default_level) {
+        auto logger = logger::Logger::create_logger(host, port, default_level);
         if (not logger) {
             return nullptr;
         }

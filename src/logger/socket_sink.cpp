@@ -3,6 +3,7 @@
 #include <arpa/inet.h>
 #include <cstring>
 #include <fcntl.h>
+#include <iostream>
 #include <poll.h>
 #include <sys/socket.h>
 #include <unistd.h>
@@ -33,6 +34,7 @@ namespace logger {
 
         while (total_sent < message_size) {
             if (not wait_for_socket_ready(socket_fd_, true)) {
+                std::cerr << "[SocketSink] Socket not ready for writing, marking as disconnected" << std::endl;
                 is_connected_ = false;
                 return;
             }
@@ -43,6 +45,7 @@ namespace logger {
                 if (errno == EAGAIN || errno == EWOULDBLOCK) {
                     continue;
                 }
+                std::cerr << "[SocketSink] Send failed: " << strerror(errno) << std::endl;
                 is_connected_ = false;
                 return;
             }
@@ -60,10 +63,12 @@ namespace logger {
         socket_fd_ = socket(AF_INET, SOCK_STREAM, 0);
 
         if (socket_fd_ == -1) {
+            std::cerr << "[SocketSink] Failed to create socket: " << strerror(errno) << std::endl;
             return false;
         }
 
         if (not set_non_blocking(socket_fd_)) {
+            std::cerr << "[SocketSink] Failed to set socket non-blocking" << std::endl;
             close(socket_fd_);
             socket_fd_ = -1;
             return false;
@@ -85,6 +90,7 @@ namespace logger {
 
     bool SocketSink::connect_to_server() {
         if (socket_fd_ == -1) {
+            std::cerr << "[SocketSink] Cannot connect - invalid socket" << std::endl;
             return false;
         }
 
@@ -94,10 +100,12 @@ namespace logger {
         server_addr.sin_port = htons(port_);
 
         if (inet_pton(AF_INET, host_.data(), &server_addr.sin_addr) <= 0) {
+            std::cerr << "[SocketSink] Invalid address format: " << host_ << std::endl;
             return false;
         }
 
         int result = connect(socket_fd_, (sockaddr *) &server_addr, sizeof(server_addr));
+
         if (result == 0) {
             is_connected_ = true;
             return true;
@@ -110,8 +118,14 @@ namespace logger {
                 if (getsockopt(socket_fd_, SOL_SOCKET, SO_ERROR, &error, &len) == 0 && error == 0) {
                     is_connected_ = true;
                     return true;
+                } else {
+                    std::cerr << "[SocketSink] Connection failed: " << strerror(error) << std::endl;
                 }
+            } else {
+                std::cerr << "[SocketSink] Connection timeout" << std::endl;
             }
+        } else {
+            std::cerr << "[SocketSink] Connect failed: " << strerror(errno) << std::endl;
         }
 
         return false;

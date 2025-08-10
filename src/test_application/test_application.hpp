@@ -21,6 +21,8 @@ namespace test_application {
     public:
         static std::unique_ptr<TestApplication> create_application(const std::string &log_filename,
                                                                    logger::LogLevel default_level);
+        static std::unique_ptr<TestApplication> create_application(const std::string &host, int port,
+                                                                   logger::LogLevel default_level);
         ~TestApplication();
 
     public:
