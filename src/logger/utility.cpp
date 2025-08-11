@@ -10,7 +10,7 @@ namespace logger {
 
         std::string format_message(std::string_view message, logger::LogLevel level) {
             std::ostringstream oss;
-            oss << "[" << utility::get_timestamp() << "] "
+            oss << "[" << utility::get_current_timestamp() << "] "
                 << "[" << utility::level_to_string(level) << "] " << message;
             return oss.str();
         }
@@ -51,7 +51,7 @@ namespace logger {
             return std::nullopt;
         }
 
-        std::string get_timestamp() {
+        std::string get_current_timestamp() {
             auto now = std::chrono::system_clock::now();
             auto ts = std::chrono::floor<std::chrono::seconds>(now);
             auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(now - ts).count();

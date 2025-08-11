@@ -13,10 +13,10 @@
 namespace logger {
     class Logger {
     public:
-        static std::shared_ptr<Logger> create_logger(const std::string &filename,
-                                                     LogLevel default_level = LogLevel::INFO);
-        static std::shared_ptr<Logger> create_logger(const std::string &host, int port,
-                                                     LogLevel default_level = LogLevel::INFO);
+        [[nodiscard]] static std::shared_ptr<Logger> create_logger(const std::string &filename,
+                                                                   LogLevel default_level = LogLevel::INFO);
+        [[nodiscard]] static std::shared_ptr<Logger> create_logger(const std::string &host, int port,
+                                                                   LogLevel default_level = LogLevel::INFO);
 
         ~Logger() = default;
 

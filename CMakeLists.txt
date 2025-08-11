@@ -9,3 +9,4 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 add_subdirectory(src/logger)
 add_subdirectory(src/test_application)
+add_subdirectory(src/metrics_application)
