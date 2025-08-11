@@ -8,17 +8,18 @@ namespace metrics_application {
 
     class MetricsApplication {
     public:
-        [[nodiscard]] static std::unique_ptr<MetricsApplication> create_application(const std::string &host, int port);
+        [[nodiscard]] static std::unique_ptr<MetricsApplication>
+        create_application(const std::string &host, int port, int message_interval, int timeout_seconds);
         ~MetricsApplication();
 
         void run();
         void stop();
 
     private:
-        MetricsApplication(std::shared_ptr<SocketServer> socket_server);
+        MetricsApplication(std::unique_ptr<SocketServer> socket_server);
 
     private:
-        std::shared_ptr<SocketServer> socket_server_;
+        std::unique_ptr<SocketServer> socket_server_;
         bool is_running_;
     };
 } // namespace metrics_application

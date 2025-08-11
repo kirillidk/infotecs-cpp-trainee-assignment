@@ -1,12 +1,16 @@
 #pragma once
 
+#include <chrono>
+#include <memory>
 #include <string>
 #include <vector>
 
 namespace metrics_application {
+    class MetricsCollector;
+
     class SocketServer {
     public:
-        SocketServer(const std::string &host, int port);
+        SocketServer(const std::string &host, int port, int message_interval, int timeout_seconds);
         ~SocketServer();
 
         bool start();
@@ -22,7 +26,7 @@ namespace metrics_application {
 
         void handle_recv();
 
-        void process_message(std::string_view message);
+        void process_message(std::string_view log_message);
 
     private:
         std::string host_;
@@ -31,5 +35,10 @@ namespace metrics_application {
         int client_fd_;
         std::vector<char> client_buffer_;
         bool running_;
+
+        int message_interval_;
+        std::chrono::seconds timeout_seconds_;
+
+        std::shared_ptr<MetricsCollector> metrics_collector_;
     };
 } // namespace metrics_application

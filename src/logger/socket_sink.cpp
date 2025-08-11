@@ -24,22 +24,16 @@ namespace logger {
 
         std::lock_guard<std::mutex> lock(socket_mutex_);
 
-        std::string full_message;
-        full_message.reserve(message.size() + 1);
-        full_message.append(message);
-        full_message.push_back('\n');
-
         size_t total_sent = 0;
-        size_t message_size = full_message.size();
 
-        while (total_sent < message_size) {
+        while (total_sent < message.size()) {
             if (not wait_for_socket_ready(socket_fd_, true)) {
                 std::cerr << "[SocketSink] Socket not ready for writing, marking as disconnected" << std::endl;
                 is_connected_ = false;
                 return;
             }
 
-            ssize_t sent = send(socket_fd_, full_message.data() + total_sent, message_size - total_sent, MSG_NOSIGNAL);
+            ssize_t sent = send(socket_fd_, message.data() + total_sent, message.size() - total_sent, MSG_NOSIGNAL);
 
             if (sent == -1) {
                 if (errno == EAGAIN || errno == EWOULDBLOCK) {

@@ -4,8 +4,11 @@
 #include "socket_server.hpp"
 
 namespace metrics_application {
-    std::unique_ptr<MetricsApplication> MetricsApplication::create_application(const std::string &host, int port) {
-        auto socket_server = std::make_unique<SocketServer>(host, port);
+    std::unique_ptr<MetricsApplication> MetricsApplication::create_application(const std::string &host, int port,
+                                                                               int message_interval,
+                                                                               int timeout_seconds) {
+
+        auto socket_server = std::make_unique<SocketServer>(host, port, message_interval, timeout_seconds);
 
         if (not socket_server->start()) {
             std::cerr << "Failed to start socket server on " << host << ":" << port << std::endl;
@@ -15,7 +18,7 @@ namespace metrics_application {
         return std::unique_ptr<MetricsApplication>(new MetricsApplication(std::move(socket_server)));
     }
 
-    MetricsApplication::MetricsApplication(std::shared_ptr<SocketServer> socket_server) :
+    MetricsApplication::MetricsApplication(std::unique_ptr<SocketServer> socket_server) :
         socket_server_(std::move(socket_server)), is_running_(false) {}
 
     MetricsApplication::~MetricsApplication() { stop(); }

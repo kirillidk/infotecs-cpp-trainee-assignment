@@ -12,9 +12,13 @@
 
 #include <logger/utility.hpp>
 
+#include "metrics_collector.hpp"
+#include "utility.hpp"
+
 namespace metrics_application {
-    SocketServer::SocketServer(const std::string &host, int port) :
-        host_(host), port_(port), server_fd_(-1), client_fd_(-1), running_(false) {}
+    SocketServer::SocketServer(const std::string &host, int port, int message_interval, int timeout_seconds) :
+        host_(host), port_(port), server_fd_(-1), client_fd_(-1), running_(false), message_interval_(message_interval),
+        timeout_seconds_(timeout_seconds), metrics_collector_(MetricsCollector::create()) {}
 
     SocketServer::~SocketServer() { stop(); }
 
@@ -24,6 +28,8 @@ namespace metrics_application {
         }
 
         std::cout << "Waiting for logger connection on " << host_ << ":" << port_ << "..." << std::endl;
+        std::cout << "Stats will be printed every " << message_interval_ << " messages" << std::endl;
+        std::cout << "or after " << timeout_seconds_.count() << " seconds of inactivity" << std::endl;
 
         sockaddr_in client_addr;
         socklen_t client_addr_len = sizeof(client_addr);
@@ -180,7 +186,25 @@ namespace metrics_application {
         }
     }
 
-    void SocketServer::process_message(std::string_view message) {
-        std::cout << "[" << logger::utility::get_current_timestamp() << "] LOG: " << message;
+    void SocketServer::process_message(std::string_view log_message) {
+        std::cout << "[" << logger::utility::get_current_timestamp() << "] LOG: " << log_message << std::endl;
+
+        auto message_opt = metrics_application::utility::parse_message_from_log(log_message);
+        if (not message_opt.has_value()) {
+            std::cerr << "Error parsing message from log" << std::endl;
+            return;
+        }
+
+        auto level_opt = metrics_application::utility::parse_level_from_log(log_message);
+        if (not level_opt.has_value()) {
+            std::cerr << "Error parsing level from log" << std::endl;
+            return;
+        }
+
+        metrics_collector_->add_message(message_opt.value(), level_opt.value());
+
+        if (metrics_collector_->should_print_stats(message_interval_)) {
+            metrics_collector_->print_stats();
+        }
     }
 } // namespace metrics_application
