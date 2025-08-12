@@ -7,7 +7,7 @@
 namespace test_application {
 
     std::optional<AppConfig> ArgumentParser::parse_arguments(const std::vector<std::string> &args) {
-        if (args.size() < 2) {
+        if (args.empty()) {
             print_error("Too few arguments");
             return std::nullopt;
         }
@@ -26,7 +26,7 @@ namespace test_application {
 
             case OptionType::UNKNOWN:
             default:
-                print_error("Unknown option: " + args[1] + ". Use --file, --socket, or --help");
+                print_error("Unknown option: " + args[0] + ". Use --file, --socket, or --help");
                 return std::nullopt;
         }
     }

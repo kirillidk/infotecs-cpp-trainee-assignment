@@ -9,3 +9,4 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(googletest)
     
 add_subdirectory(logger)
+add_subdirectory(test_application)
