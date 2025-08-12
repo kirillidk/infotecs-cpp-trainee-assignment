@@ -25,15 +25,15 @@ namespace test_application {
 
     class ArgumentParser {
     public:
-        static std::optional<AppConfig> parse_arguments(int argc, char *argv[]);
+        static std::optional<AppConfig> parse_arguments(const std::vector<std::string> &args);
 
     private:
         enum class OptionType { FILE, SOCKET, HELP, UNKNOWN };
 
-        static OptionType get_option_type(const char *arg);
-        static std::optional<AppConfig> parse_file_mode(char *argv[], int remaining);
-        static std::optional<AppConfig> parse_socket_mode(char *argv[], int remaining);
-        static bool parse_optional_level(char *argv[], int remaining, AppConfig &config);
+        static OptionType get_option_type(std::string_view arg);
+        static std::optional<AppConfig> parse_file_mode(const std::vector<std::string> &args, size_t start_index);
+        static std::optional<AppConfig> parse_socket_mode(const std::vector<std::string> &args, size_t start_index);
+        static bool parse_optional_level(const std::vector<std::string> &args, size_t start_index, AppConfig &config);
 
         static bool is_valid_port(int port);
         static void print_error(std::string_view message);

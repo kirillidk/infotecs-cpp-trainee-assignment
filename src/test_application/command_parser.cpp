@@ -1,7 +1,6 @@
 #include "command_parser.hpp"
 
 #include <algorithm>
-#include <iostream>
 #include <sstream>
 #include <vector>
 
@@ -34,7 +33,7 @@ namespace test_application {
         std::optional<logger::LogLevel> level = parse_level(level_str);
 
         if (level.has_value() && tokens.size() > 1) {
-            std::string message = trimmed_input.substr(0, trimmed_input.rfind(' '));
+            std::string message = trim(trimmed_input.substr(0, trimmed_input.rfind(' ')));
             return ParsedCommand(CommandType::LOG_MESSAGE, message, level.value());
         } else {
             return ParsedCommand(CommandType::LOG_MESSAGE, trimmed_input);
@@ -49,7 +48,7 @@ namespace test_application {
             return logger::LogLevel::DEBUG;
         if (lower_level == "info")
             return logger::LogLevel::INFO;
-        if (lower_level == "warning" || lower_level == "warn")
+        if (lower_level == "warning")
             return logger::LogLevel::WARNING;
         if (lower_level == "error")
             return logger::LogLevel::ERROR;

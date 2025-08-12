@@ -45,5 +45,16 @@ namespace test_application {
             std::cout << "Type 'exit' or 'quit' to exit\n";
             std::cout << "===================================\n\n";
         }
+
+        std::vector<std::string> parse_arguments(int argc, char *argv[]) {
+            std::vector<std::string> args;
+            args.reserve(argc);
+
+            for (int i = 1; i < argc; ++i) {
+                args.emplace_back(argv[i]);
+            }
+
+            return args;
+        }
     } // namespace utility
 } // namespace test_application

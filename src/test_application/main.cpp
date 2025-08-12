@@ -8,7 +8,9 @@
 int main(int argc, char *argv[]) {
     using namespace test_application;
 
-    auto config = ArgumentParser::parse_arguments(argc, argv);
+    std::vector<std::string> args = utility::parse_arguments(argc, argv);
+
+    auto config = ArgumentParser::parse_arguments(args);
     if (not config.has_value()) {
         utility::print_usage(argv[0]);
         return 1;
