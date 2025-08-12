@@ -1,21 +1,26 @@
 #pragma once
 
-#include <chrono>
+#include <functional>
 #include <memory>
 #include <string>
 #include <vector>
 
 namespace metrics_application {
-    class MetricsCollector;
-
     class SocketServer {
     public:
-        SocketServer(const std::string &host, int port, int message_interval, int timeout_seconds);
+        using MessageCallback = std::function<void(std::string_view)>;
+
+    public:
+        SocketServer(const std::string &host, int port);
         ~SocketServer();
 
+    public:
         bool start();
         void run();
         void stop();
+
+        // Set callback for when a message is received
+        void set_message_callback(MessageCallback callback);
 
     private:
         static constexpr int POLL_TIMEOUT_MS = 1000;
@@ -23,10 +28,7 @@ namespace metrics_application {
 
         bool init_socket();
         bool set_non_blocking(int socket);
-
         void handle_recv();
-
-        void process_message(std::string_view log_message);
 
     private:
         std::string host_;
@@ -36,9 +38,6 @@ namespace metrics_application {
         std::vector<char> client_buffer_;
         bool running_;
 
-        int message_interval_;
-        std::chrono::seconds timeout_seconds_;
-
-        std::shared_ptr<MetricsCollector> metrics_collector_;
+        MessageCallback message_callback_;
     };
 } // namespace metrics_application

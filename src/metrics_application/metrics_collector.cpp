@@ -1,6 +1,7 @@
 #include "metrics_collector.hpp"
 
 #include <algorithm>
+#include <chrono>
 #include <iomanip>
 #include <iostream>
 
@@ -23,9 +24,25 @@ namespace metrics_application {
         stats_.min_length = std::min(stats_.min_length, message_length);
         stats_.max_length = std::max(stats_.max_length, message_length);
         stats_.average_length = static_cast<double>(stats_.total_length) / stats_.total_messages;
+
+        auto now = std::chrono::steady_clock::now();
+        stats_.message_timestamps.push_back(now);
+        update_messages_last_hour();
     }
 
-    void MetricsCollector::print_stats() const {
+    void MetricsCollector::update_messages_last_hour() {
+        auto now = std::chrono::steady_clock::now();
+        auto one_hour_ago = now - std::chrono::hours(1);
+
+        // Remove timestamps older than one hour
+        while (!stats_.message_timestamps.empty() && stats_.message_timestamps.front() < one_hour_ago) {
+            stats_.message_timestamps.pop_front();
+        }
+
+        stats_.messages_last_hour = stats_.message_timestamps.size();
+    }
+
+    void MetricsCollector::print_stats() {
         std::lock_guard<std::mutex> lock(stats_mutex_);
 
         std::cout << "\n" << std::string(50, '=') << std::endl;
@@ -55,11 +72,19 @@ namespace metrics_application {
             std::cout << "  No data available" << std::endl;
         }
 
-        std::cout << std::string(50, '=') << std::endl << std::endl;
+        std::cout << std::string(50, '=') << '\n' << std::endl;
+
+        // Update last printed count
+        stats_.last_printed_total_messages = stats_.total_messages;
     }
 
     bool MetricsCollector::should_print_stats(size_t message_interval) const {
         std::lock_guard<std::mutex> lock(stats_mutex_);
         return (stats_.total_messages > 0) && (stats_.total_messages % message_interval == 0);
+    }
+
+    bool MetricsCollector::has_stats_changed_since_last_print() const {
+        std::lock_guard<std::mutex> lock(stats_mutex_);
+        return stats_.total_messages != stats_.last_printed_total_messages;
     }
 } // namespace metrics_application

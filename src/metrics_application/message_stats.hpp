@@ -1,5 +1,6 @@
 #pragma once
 
+#include <deque>
 #include <limits>
 #include <map>
 
@@ -7,6 +8,7 @@
 
 namespace metrics_application {
     struct MessageStats {
+    public:
         size_t total_messages = 0;
         std::map<logger::LogLevel, size_t> messages_by_level{{logger::LogLevel::DEBUG, 0},
                                                              {logger::LogLevel::INFO, 0},
@@ -19,6 +21,14 @@ namespace metrics_application {
         size_t max_length = 0;
         double average_length = 0.0;
 
-        size_t total_length = 0; // for calculating average_length
+    public:
+        // For calculating average_length
+        size_t total_length = 0;
+
+        // For tracking messages in last hour
+        std::deque<std::chrono::steady_clock::time_point> message_timestamps;
+
+        // For tracking if stats changed since last print
+        size_t last_printed_total_messages = 0;
     };
 } // namespace metrics_application

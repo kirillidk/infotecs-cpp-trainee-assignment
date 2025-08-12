@@ -3,33 +3,25 @@
 #include <arpa/inet.h>
 #include <cstring>
 #include <fcntl.h>
-#include <iomanip>
 #include <iostream>
 #include <poll.h>
-#include <sstream>
 #include <sys/socket.h>
 #include <unistd.h>
 
 #include <logger/utility.hpp>
 
-#include "metrics_collector.hpp"
-#include "utility.hpp"
-
 namespace metrics_application {
-    SocketServer::SocketServer(const std::string &host, int port, int message_interval, int timeout_seconds) :
-        host_(host), port_(port), server_fd_(-1), client_fd_(-1), running_(false), message_interval_(message_interval),
-        timeout_seconds_(timeout_seconds), metrics_collector_(MetricsCollector::create()) {}
+    SocketServer::SocketServer(const std::string &host, int port) :
+        host_(host), port_(port), server_fd_(-1), client_fd_(-1), running_(false) {}
 
     SocketServer::~SocketServer() { stop(); }
 
     bool SocketServer::start() {
-        if (!init_socket()) {
+        if (not init_socket()) {
             return false;
         }
 
         std::cout << "Waiting for logger connection on " << host_ << ":" << port_ << "..." << std::endl;
-        std::cout << "Stats will be printed every " << message_interval_ << " messages" << std::endl;
-        std::cout << "or after " << timeout_seconds_.count() << " seconds of inactivity" << std::endl;
 
         sockaddr_in client_addr;
         socklen_t client_addr_len = sizeof(client_addr);
@@ -89,7 +81,6 @@ namespace metrics_application {
         }
     }
 
-
     void SocketServer::stop() {
         running_ = false;
 
@@ -103,6 +94,8 @@ namespace metrics_application {
             server_fd_ = -1;
         }
     }
+
+    void SocketServer::set_message_callback(MessageCallback callback) { message_callback_ = callback; }
 
     bool SocketServer::init_socket() {
         server_fd_ = socket(AF_INET, SOCK_STREAM, 0);
@@ -180,31 +173,14 @@ namespace metrics_application {
             client_buffer_.insert(client_buffer_.end(), buffer, buffer + bytes_read);
         }
 
-        if (not client_buffer_.empty()) {
-            process_message({client_buffer_.data(), client_buffer_.size()});
+        if (!client_buffer_.empty()) {
+            std::string_view message(client_buffer_.data(), client_buffer_.size());
+
+            if (message_callback_) {
+                message_callback_(message);
+            }
+
             client_buffer_.clear();
-        }
-    }
-
-    void SocketServer::process_message(std::string_view log_message) {
-        std::cout << "[" << logger::utility::get_current_timestamp() << "] LOG: " << log_message << std::endl;
-
-        auto message_opt = metrics_application::utility::parse_message_from_log(log_message);
-        if (not message_opt.has_value()) {
-            std::cerr << "Error parsing message from log" << std::endl;
-            return;
-        }
-
-        auto level_opt = metrics_application::utility::parse_level_from_log(log_message);
-        if (not level_opt.has_value()) {
-            std::cerr << "Error parsing level from log" << std::endl;
-            return;
-        }
-
-        metrics_collector_->add_message(message_opt.value(), level_opt.value());
-
-        if (metrics_collector_->should_print_stats(message_interval_)) {
-            metrics_collector_->print_stats();
         }
     }
 } // namespace metrics_application
