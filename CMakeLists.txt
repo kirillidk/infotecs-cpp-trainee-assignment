@@ -7,6 +7,10 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(LOGGER_LIB "${CMAKE_PROJECT_NAME}_logger_lib")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
+enable_testing()
+
 add_subdirectory(src/logger)
 add_subdirectory(src/test_application)
 add_subdirectory(src/metrics_application)
+
+add_subdirectory(unit)
