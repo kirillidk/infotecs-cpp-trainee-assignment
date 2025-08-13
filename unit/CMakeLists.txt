@@ -10,3 +10,4 @@ FetchContent_MakeAvailable(googletest)
     
 add_subdirectory(logger)
 add_subdirectory(test_application)
+add_subdirectory(metrics_application)

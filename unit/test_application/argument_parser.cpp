@@ -1,4 +1,5 @@
 #include <gtest/gtest.h>
+
 #include <test_application/argument_parser.hpp>
 
 using namespace test_application;

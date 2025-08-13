@@ -27,7 +27,6 @@ namespace metrics_application {
 
         auto now = std::chrono::steady_clock::now();
         stats_.message_timestamps.push_back(now);
-        update_messages_last_hour();
     }
 
     void MetricsCollector::update_messages_last_hour() {
@@ -44,6 +43,7 @@ namespace metrics_application {
 
     void MetricsCollector::print_stats() {
         std::lock_guard<std::mutex> lock(stats_mutex_);
+        update_messages_last_hour();
 
         std::cout << "\n" << std::string(50, '=') << std::endl;
         std::cout << "           MESSAGE STATISTICS" << std::endl;
@@ -86,5 +86,11 @@ namespace metrics_application {
     bool MetricsCollector::has_stats_changed_since_last_print() const {
         std::lock_guard<std::mutex> lock(stats_mutex_);
         return stats_.total_messages != stats_.last_printed_total_messages;
+    }
+
+    MessageStats MetricsCollector::get_stats() {
+        std::lock_guard<std::mutex> lock(stats_mutex_);
+        update_messages_last_hour();
+        return stats_;
     }
 } // namespace metrics_application

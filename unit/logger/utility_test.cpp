@@ -4,11 +4,7 @@
 
 #include <logger/utility.hpp>
 
-class UtilityTest : public ::testing::Test {
-protected:
-    void SetUp() override {}
-    void TearDown() override {}
-};
+class UtilityTest : public ::testing::Test {};
 
 // Tests for level_to_string
 TEST_F(UtilityTest, LevelToString_AllLevels) {

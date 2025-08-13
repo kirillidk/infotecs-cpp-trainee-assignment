@@ -1,12 +1,21 @@
+set(METRICS_APPLICATION "metrics_application")
+
 file(GLOB_RECURSE METRICS_APPLICATION_SOURCES CONFIGURE_DEPENDS
         "${CMAKE_CURRENT_SOURCE_DIR}/*.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/*.hpp"
 )
+list(REMOVE_ITEM METRICS_APPLICATION_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/main.cpp")
 
-set(METRICS_APPLICATION "metrics_application")
+add_library(${METRICS_APPLICATION_LIB} STATIC ${METRICS_APPLICATION_SOURCES})
 
-add_executable(${METRICS_APPLICATION} ${METRICS_APPLICATION_SOURCES})
+target_include_directories(${METRICS_APPLICATION_LIB} PUBLIC
+    "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>"
+)
 
-target_link_libraries(${METRICS_APPLICATION} PRIVATE ${LOGGER_LIB})
+target_link_libraries(${METRICS_APPLICATION_LIB} PRIVATE ${LOGGER_LIB})
 
-target_compile_options(${METRICS_APPLICATION} PRIVATE "-Werror" "-Wall" "-Wextra" "-Wpedantic")
+target_compile_options(${METRICS_APPLICATION_LIB} PUBLIC "-Werror" "-Wall" "-Wextra" "-Wpedantic" "-Wno-error=maybe-uninitialized")
+
+add_executable(${METRICS_APPLICATION} "${CMAKE_CURRENT_SOURCE_DIR}/main.cpp")
+
+target_link_libraries(${METRICS_APPLICATION} PRIVATE ${METRICS_APPLICATION_LIB} ${LOGGER_LIB})

@@ -19,6 +19,7 @@ namespace metrics_application {
         void print_stats();
         [[nodiscard]] bool should_print_stats(size_t message_interval) const;
         [[nodiscard]] bool has_stats_changed_since_last_print() const;
+        [[nodiscard]] MessageStats get_stats();
 
     private:
         void update_messages_last_hour();
