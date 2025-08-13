@@ -66,6 +66,12 @@ cmake -S . -B build -DBUILD_SHARED=ON
 cmake --build build
 ```
 
+### Тестирование
+
+```bash
+cmake --build build --target test
+```
+
 ### Результат сборки
 
 Исполняемые файлы в build/bin
